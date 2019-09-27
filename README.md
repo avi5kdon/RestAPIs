@@ -8,6 +8,7 @@ To deploy the project on fuse:
 1. Prerequisites
 
 > feature:install camel-servlet
+
 > feature:install camel-swagger-java
 
 2. Installation
