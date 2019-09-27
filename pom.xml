@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2018 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <skip.quickstarts.tests>true</skip.quickstarts.tests>
+        <swagger-ui.version>3.1.4</swagger-ui.version>
+        <webjars.version>0.36</webjars.version>
+        <!-- versions of "subprojects" of Red Hat Fuse -->
+        <version.org.apache.cxf>3.1.11.fuse-720057-redhat-00001</version.org.apache.cxf>
+        <version.org.apache.karaf>4.2.0.fuse-720061-redhat-00001</version.org.apache.karaf>
+
+        <!-- versions of Maven plugins -->
+        <version.plugin.asciidoctor-maven-plugin>1.5.6</version.plugin.asciidoctor-maven-plugin>
+        <version.org.asciidoctor>1.5.8</version.org.asciidoctor>
+        <version.plugin.felix.maven-bundle-plugin>3.5.1</version.plugin.felix.maven-bundle-plugin>
+        <version.plugin.mojo.build-helper-maven-plugin>3.0.0</version.plugin.mojo.build-helper-maven-plugin>
+        <!-- Plugins from org.apache.maven.plugins -->
+        <!--  <version.plugin.maven-compiler-plugin>3.7.0</version.plugin.maven-compiler-plugin>
+          <version.plugin.maven-deploy-plugin>2.8.2</version.plugin.maven-deploy-plugin>
+          <version.plugin.maven-install-plugin>2.5.2</version.plugin.maven-install-plugin>
+          <version.plugin.maven-source-plugin>3.0.1</version.plugin.maven-source-plugin>
+          <version.plugin.maven-surefire-plugin>2.20.1</version.plugin.maven-surefire-plugin>
+          <version.plugin.maven-war-plugin>3.1.0</version.plugin.maven-war-plugin>-->
+        <version.plugin.maven-resources-plugin>3.0.2</version.plugin.maven-resources-plugin>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Fuse BOM to import all non-plugin dependencies -->
+
+            <dependency>
+                <groupId>org.jboss.fuse</groupId>
+                <artifactId>jboss-fuse-parent</artifactId>
+                <version>7.2.0.fuse-720035-redhat-00001</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+    <groupId>camel.rest</groupId>
+    <artifactId>camel-rest</artifactId>
+    <version>1.0</version>
+    <packaging>bundle</packaging>
+
+    <name>CamelRest</name>
+    <description>camelrest</description>
+
+    <dependencies>
+        <!--
+            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-339)
+            standard annotations and API
+        -->
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jetty9</artifactId>
+        </dependency>
+        <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-swagger-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>${swagger-ui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator</artifactId>
+            <version>${webjars.version}</version>
+        </dependency>
+
+        <!--
+            For logging, we will use SLF4J, which is also available in the container by default.
+          -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+            We are also building a small Java client application that we can use to test our web web services.
+            For performing the HTTP requests, we are using Apache Commons HttpClient.
+        -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--
+          Add the slf4j-log4j12 dependency jar for testing
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>shared</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- Need to setup the OSGi meta information here -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.plugin.felix.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>*</Import-Package>
+                        <Import-Service>org.apache.aries.blueprint.NamespaceHandler;
+                            osgi.service.blueprint.namespace=http://cxf.apache.org/transports/http/configuration</Import-Service>
+                        <Export-Package>org.jboss.fuse.camel.rest</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${version.plugin.maven-resources-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>filter</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--  <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>build-helper-maven-plugin</artifactId>
+                  <executions>
+                      <execution>
+                          <id>attach-artifacts</id>
+                          <phase>package</phase>
+                          <goals>
+                              <goal>attach-artifact</goal>
+                          </goals>
+                          <configuration>
+                              <artifacts>
+                                  <artifact>
+                                      <file>target/classes/features.xml</file>
+                                      <type>xml</type>
+                                      <classifier>features</classifier>
+                                  </artifact>
+                              </artifacts>
+                          </configuration>
+                      </execution>
+                  </executions>
+              </plugin>-->
+
+
+        </plugins>
+    </build>
+
+</project>

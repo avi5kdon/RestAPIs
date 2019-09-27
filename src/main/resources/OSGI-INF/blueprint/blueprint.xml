@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+    <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
+
+    <bean id="osgiservlet" class="org.apache.camel.component.servlet.osgi.OsgiServletRegisterer"
+          init-method="register"
+          destroy-method="unregister">
+        <property name="alias" value="/camel-rest/rest"/>
+        <property name="httpService" ref="httpService"/>
+        <property name="servlet" ref="camelServlet"/>
+    </bean>
+
+    <bean id="camelServlet" class="org.apache.camel.component.servlet.CamelHttpTransportServlet"/>
+
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration component="servlet" bindingMode="json" contextPath="/camel-rest/rest" port="8181" apiContextPath="/api-doc">
+            <dataFormatProperty key="prettyPrint" value="true"/>
+            <apiProperty key="base.path" value="api-docs"/>
+            <apiProperty key="api.version" value="1.2.3"/>
+            <apiProperty key="api.title" value="User Services"/>
+            <apiProperty key="api.description" value="Camel Rest Example with Swagger that provides an User REST service"/>
+            <apiProperty key="api.contact.name" value="The Apache Camel team"/>
+
+        </restConfiguration>
+
+        <rest path="/user" consumes="application/json" produces="application/json" apiDocs="true">
+            <description>User rest service</description>
+            <!-- this is a rest GET to view an user by the given id -->
+            <get uri="/{id}" outType="org.jboss.fuse.camel.rest.Subject">
+                <description>Find user by id</description>
+                <param name="id" type="path" description="The id of the user to get" dataType="integer" />
+                <responseMessage message="The user which was found" />
+                <responseMessage message="User not found" code="404" />
+                <to uri="bean:service?method=get(${header.id})"/>
+
+            </get>
+        </rest>
+
+    </camelContext>
+
+
+<bean id="service" class="org.jboss.fuse.camel.rest.RestService"/>
+</blueprint>
+
