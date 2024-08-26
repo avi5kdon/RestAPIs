@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <skip.quickstarts.tests>true</skip.quickstarts.tests>
-        <swagger-ui.version>3.1.4</swagger-ui.version>
+        <swagger-ui.version>3.23.11</swagger-ui.version>
         <webjars.version>0.36</webjars.version>
         <!-- versions of "subprojects" of Red Hat Fuse -->
         <version.org.apache.cxf>3.1.11.fuse-720057-redhat-00001</version.org.apache.cxf>
